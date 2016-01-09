@@ -21,21 +21,18 @@ class Hue(object):
         light_name = kwargs.pop('light_name', None)
         url = "%s/api/%s/lights" % (self.url, self.api_key)
         r = requests.get(url)
-        if r.status_code == 200:
-            lights = json.loads(r.text)
-            for light in lights:
-                try:
-                    name = lights[light].get('name')
-                    if name == light_name:
-                        light_found = True
-                        return light
-                except TypeError:
-                    raise ValueError(light['error']['description'])
-        else:
-            raise ValueError('API threw %s') % (r.status_code)
-
+        if r.status_code != 200:
+            raise HueException(
+                "Recieved %s status code from url %s ") % (r.status_code, url)
+        self.process_errors(json.loads(r.text))
+        lights = json.loads(r.text)
+        for light in lights:
+            name = lights[light].get('name')
+            if name == light_name:
+                light_found = True
+                return light
         if not light_found:
-            raise ValueError('light not found')
+            raise HueException('light not found')
 
     def change_state(self, **kwargs):
         light_id = kwargs.pop('light_id', None)
