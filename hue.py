@@ -36,9 +36,18 @@ class Hue(object):
 
     def change_state(self, **kwargs):
         light_id = kwargs.pop('light_id', None)
-        on = kwargs.pop('on', False)
+        alert = kwargs.pop('alert', None)
+        payload = {}
+        on = kwargs.pop('on', None)
+        bri = kwargs.pop('brightness', None)
+        if alert:
+            payload['alert'] = 'lselect'
+        if on:
+            payload['on'] = on
+        if bri:
+            payload['bri'] = bri
+            payload['on'] = True
         url = "%s/api/%s/lights/%s/state" % (self.url, self.api_key, light_id)
-        payload = {"on": on}
         r = requests.put(url, data=json.dumps(payload))
         if r.status_code != 200:
             raise HueException(
@@ -55,8 +64,11 @@ class Hue(object):
         self.change_state(on=False, light_id=light_id)
 
     def on(self, **kwargs):
+        brightness = kwargs.pop('brightness', None)
+        alert = kwargs.pop('alert', None)
         light_id = kwargs.pop('light_id', None)
         if not light_id:
             light_name = kwargs.pop('light_name', None)
             light_id = self.get_light_id(light_name=light_name)
-        self.change_state(on=True, light_id=light_id)
+        self.change_state(on=True, light_id=light_id, brightness=brightness,
+                          alert=alert)
