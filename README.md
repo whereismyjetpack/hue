@@ -16,11 +16,17 @@ h = Hue(url=url, api_key=api_key)
 h.off(light_name='Living room 1')
 h.on(light_name='Living room 1')
 
-# turn light off/on by id 
+# turn light off/on by id
 h.off(light_id=1)
 h.on(light_id=1)
 
 # get a lights id
 h.get_light_id(light_name='Living room 1')
+
+# change a lights brightness (value from 1 - 254)
+h.on(light_id=1, brightness=200)
+
+# put the light in alert state (flashes for 15seconds)
+h.on(light_id=1, alert=True)
 
 ```
